@@ -1,0 +1,4012 @@
+---
+title: "Thesis"
+output: html_document
+date: "2023-08-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+##Remove rows with empty cells
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+```{r}
+
+
+#remove emojis 
+#df_Test$text <- sapply(df_Test$text, function(row) gsub("[^\x01-\x7F]", "", row))
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+setwd("/Users/jayshreenohar/Downloads")
+```
+
+```{r}
+#df_Test[!duplicated(df_Test$id), ]
+```
+
+##Sentiment scores
+
+```{r}
+
+#install.packages("syuzhet")
+#library(syuzhet)
+```
+
+```{r}
+#remove emojis 
+df_Johnson_2016
+df_Johnson_2016$text <- sapply(df_Johnson_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+
+df_Johnson_2017$text <- sapply(df_Johnson_2017$text, function(row) gsub("[^\x01-\x7F]", "", row))
+
+#Remove rows that contain empty cells
+df_Johnson_2016 <- df_Johnson_2016[grep("\\w", df_Johnson_2016$text), ]
+
+df_Johnson_2016$sentiment_score <- get_sentiment(df_Johnson_2016$text)
+df_Johnson_2017$sentiment_score <- get_sentiment(df_Johnson_2017$text)
+
+df_Johnson_2016 <- unique(df_Johnson_2016)
+df_Johnson_2017<- unique(df_Johnson_2017)
+
+df_Johnson_2016 <- df_Johnson_2016[!duplicated(df_Johnson_2016$text), ]
+df_Johnson_2017 <- df_Johnson_2017[!duplicated(df_Johnson_2017$text), ]
+```
+
+```{r}
+library(ggplot2)
+#Model 2016
+model_JCI2016 <- lm(PRC ~ sentiment_score, data = df_Johnson_2016)
+summary(model_JCI2016)
+
+#Assumptions
+#L 
+plot(model_JCI2016$residuals ~ model_JCI2016$fitted.values)
+
+P1 <- ggplot(df_Johnson_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity JCI 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_JCI2016)
+
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_JCI2016)
+
+#Norm
+shapiro.test(model_JCI2016$residuals)
+
+
+stargazer(model_JCI2016, model_JCI2017)
+
+
+```
+
+```{r}
+#2017
+#Model
+model_JCI2017 <- lm(PRC ~ sentiment_score, data = df_Johnson_2017)
+summary(model_JCI2017)
+
+#Assumptions
+#L 
+plot(model_JCI2017$residuals ~ model_JCI2017$fitted.values)
+
+P2 <- ggplot(df_Johnson_2017, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity JCI 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_JCI2017)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_JCI2017)
+
+#Norm
+shapiro.test(model_JCI2017$residuals)
+
+
+
+
+```
+
+```{r}
+
+ ggplot(df_EXPE_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EXPE 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EXPE2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EXPE2016)
+
+#Norm
+shapiro.test(model_EXPE2016$residuals)
+```
+
+```{r}
+
+
+ggplot(df_EXPE_2017, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EXPE 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EXPE2017)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EXPE2017)
+
+#Norm
+shapiro.test(model_EXPE2017$residuals)
+
+stargazer(model_EXPE2017, type = "text")
+```
+
+```{r}
+
+df_NASDAQ$text <- sapply(df_NASDAQ$text, function(row) gsub("[^\x01-\x7F]", "", row))
+
+df_NASDAQ$sentiment_score <-NULL
+df_NASDAQ<- unique(df_NASDAQ)
+df_NASDAQ$sentiment_score <- get_sentiment(df_NASDAQ$text)
+df_NASDAQ<- df_NASDAQ[!duplicated(df_NASDAQ$text), ]
+```
+
+```{r}
+
+#Model
+model_Nasdaq <- lm(PRC ~ sentiment_score, data = df_NASDAQ)
+summary(model_Nasdaq)
+
+#Assumptions
+#L 
+P3 <- plot(model_Nasdaq$residuals ~ model_Nasdaq$fitted.values)
+ggplot(df_NASDAQ, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity NDAQ", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_Nasdaq)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_Nasdaq)
+
+#Norm
+shapiro.test(model_Nasdaq$residuals)
+```
+
+```{r}
+stargazer(model_Nasdaq)
+```
+
+```{r}
+df_autodesk$text <- sapply(df_autodesk$text, function(row) gsub("[^\x01-\x7F]", "", row))
+
+df_autodesk <- df_autodesk[grep("\\w", df_autodesk$text), ]
+
+df_autodesk$sentiment_score <-NULL
+df_autodesk<- unique(df_autodesk)
+df_autodesk$sentiment_score <- get_sentiment(df_autodesk$text)
+df_autodesk<- df_autodesk[!duplicated(df_autodesk$text), ]
+
+#Model
+model_autodesk <- lm(PRC ~ sentiment_score, data = df_autodesk)
+summary(model_autodesk)
+
+#Assumptions
+#L 
+P4 <- ggplot(df_autodesk, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ADSK 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_autodesk)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_autodesk)
+
+#Norm
+shapiro.test(model_autodesk$residuals)
+
+stargazer(model_autodesk)
+```
+
+```{r}
+df_Hasbro_2016$text <- sapply(df_Hasbro_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Hasbro_2016 <- df_Hasbro_2016[grep("\\w", df_Hasbro_2016$text), ]
+
+df_Hasbro_2018$text <- sapply(df_Hasbro_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Hasbro_2018 <- df_Hasbro_2018[grep("\\w", df_Hasbro_2018$text), ]
+
+
+df_Hasbro_2016$sentiment_score <- NULL
+df_Hasbro_2018$sentiment_score<- NULL
+df_Hasbro_2016<- unique(df_Hasbro_2016)
+df_Hasbro_2018<- unique(df_Hasbro_2018)
+df_Hasbro_2016$sentiment_score <- get_sentiment(df_Hasbro_2016$text)
+df_Hasbro_2018$sentiment_score <- get_sentiment(df_Hasbro_2018$text)
+df_Hasbro_2016<- df_Hasbro_2016[!duplicated(df_Hasbro_2016$text), ]
+df_Hasbro_2018<- df_Hasbro_2018[!duplicated(df_Hasbro_2018$text), ]
+
+#2016
+#Model
+model_HAS2016 <- lm(PRC ~ sentiment_score, data = df_Hasbro_2016)
+summary(model_HAS2016)
+
+#Assumptions
+#L 
+P5 <-ggplot(df_Hasbro_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity HAS 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_HAS2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_HAS2016)
+
+#Norm
+shapiro.test(model_HAS2016$residuals)
+
+#2018
+#Model
+model_HAS2018 <- lm(PRC ~ sentiment_score, data= df_Hasbro_2018)
+summary(model_HAS2018)
+
+#Assumptions
+#L 
+P6 <-ggplot(df_Hasbro_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity HAS 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_HAS2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_HAS2018)
+
+#Norm
+shapiro.test(model_HAS2018$residuals)
+
+stargazer(model_HAS2016, model_HAS2018)
+```
+
+```{r}
+df_Intel_2016$text <- sapply(df_Intel_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Intel_2016 <- df_Intel_2016[grep("\\w", df_Intel_2016$text), ]
+
+df_Intel_2018$text <- sapply(df_Intel_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Intel_2018<- df_Intel_2018[grep("\\w", df_Intel_2018$text), ]
+
+df_Intel_2016<- df_Intel_2016[!duplicated(df_Intel_2016$text), ]
+df_Intel_2018<- df_Intel_2018[!duplicated(df_Intel_2018$text), ]
+df_Intel_2016$sentiment_score <- NULL
+df_Intel_2018$sentiment_score<- NULL
+df_Intel_2016<- unique(df_Intel_2016)
+df_Intel_2018<- unique(df_Intel_2018)
+df_Intel_2016$sentiment_score <- get_sentiment(df_Intel_2016$text)
+df_Intel_2018$sentiment_score <- get_sentiment(df_Intel_2018$text)
+
+#2016
+#Model
+model_INTC2016 <- lm(PRC ~ sentiment_score, data = df_Intel_2016)
+summary(model_INTC2016)
+
+#Assumptions
+#L 
+P7<-plot(model_INTC2016$residuals ~ model_INTC2016$fitted.values)
+ggplot(df_Intel_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity INTC 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_INTC2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_INTC2016)
+
+#Norm
+shapiro.test(model_INTC2016$residuals)
+
+#2018
+#Model
+model_INTC2018 <- lm(PRC ~ sentiment_score, data = df_Intel_2018)
+summary(model_INTC2018)
+
+#Assumptions
+#L 
+P8<-plot(model_INTC2018$residuals ~ model_INTC2018$fitted.values)
+ggplot(df_Intel_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity INTC 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_INTC2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_INTC2018)
+
+#Norm
+shapiro.test(model_INTC2018$residuals)
+
+stargazer(model_INTC2016, model_INTC2018)
+```
+
+```{r}
+df_Activision_2016$text <- sapply(df_Activision_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Activision_2016 <- df_Activision_2016[grep("\\w", df_Activision_2016$text), ]
+
+df_Activision_2018$text <- sapply(df_Activision_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Activision_2018<- df_Activision_2018[grep("\\w", df_Activision_2018$text), ]
+
+df_Activision_2016$sentiment_score<- NULL
+df_Activision_2018$sentiment_score<- NULL
+df_Activision_2016<- unique(df_Activision_2016)
+df_Activision_2018<- unique(df_Activision_2018)
+df_Activision_2016$sentiment_score <- get_sentiment(df_Activision_2016$text)
+df_Activision_2018$sentiment_score <- get_sentiment(df_Activision_2018$text)
+
+df_Activision_2016<- df_Activision_2016[!duplicated(df_Activision_2016$text), ]
+df_Activision_2018<- df_Activision_2018[!duplicated(df_Activision_2018$text), ]
+
+#2016
+#Model
+model_ATVI2016 <- lm(PRC ~ sentiment_score, data = df_Activision_2016)
+summary(model_ATVI2016)
+
+#Assumptions
+#L 
+P9 <-plot(model_ATVI2016$residuals ~ model_ATVI2016$fitted.values)
+ggplot(df_Activision_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ATVI 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_ATVI2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_ATVI2016)
+
+#Norm
+shapiro.test(model_ATVI2016$residuals)
+
+#2018
+#Model
+model_ATVI2018 <- lm(PRC ~ sentiment_score, data = df_Activision_2018)
+summary(model_ATVI2018)
+
+#Assumptions
+#L 
+P10<- ggplot(df_Activision_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ATVI 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_ATVI2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_ATVI2018)
+
+#Norm
+shapiro.test(model_ATVI2018$residuals)
+
+stargazer(model_ATVI2016, model_ATVI2018)
+```
+
+```{r}
+df_Inuit_2016$text <- sapply(df_Inuit_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Inuit_2016 <- df_Inuit_2016[grep("\\w", df_Inuit_2016$text), ]
+
+df_Inuit_2018$text <- sapply(df_Inuit_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Inuit_2018 <- df_Inuit_2018[grep("\\w", df_Inuit_2018$text), ]
+
+
+df_Inuit_2016<- df_Inuit_2016[!duplicated(df_Inuit_2016$text), ]
+df_Inuit_2018<- df_Inuit_2018[!duplicated(df_Inuit_2018$text), ]
+
+df_Inuit_2016$sentiment_score<- NULL
+df_Inuit_2018$sentiment_score<- NULL
+df_Inuit_2016<- unique(df_Inuit_2016)
+df_Inuit_2018<- unique(df_Inuit_2018)
+df_Inuit_2016$sentiment_score <- get_sentiment(df_Inuit_2016$text)
+df_Inuit_2018$sentiment_score <- get_sentiment(df_Inuit_2018$text)
+
+#2016
+#Model
+model_INTU2016 <- lm(PRC ~ sentiment_score, data = df_Inuit_2016)
+summary(model_INTU2016)
+
+#Assumptions
+#L 
+plot(model_INTU2016$residuals ~ model_INTU2016$fitted.values)
+ggplot(df_Inuit_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity INTU 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_INTU2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_INTU2016)
+
+#Norm
+shapiro.test(model_INTU2016$residuals)
+
+#2018
+#Model
+model_INTU2018 <- lm(PRC ~ sentiment_score, data = df_Inuit_2018)
+summary(model_INTU2018)
+
+#Assumptions
+#L 
+
+ggplot(df_Inuit_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity INTU 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_INTU2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_INTU2018)
+
+#Norm
+shapiro.test(model_INTU2018$residuals)
+
+stargazer(model_INTU2016, model_INTU2018)
+
+```
+
+```{r}
+df_Allergan_2016$text <- sapply(df_Allergan_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Allergan_2016 <- df_Allergan_2016[grep("\\w", df_Allergan_2016$text), ]
+
+df_Allergan_2018$text <- sapply(df_Allergan_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Allergan_2018 <- df_Allergan_2018[grep("\\w", df_Allergan_2018$text), ]
+
+df_Allergan_2016<- df_Allergan_2016[!duplicated(df_Allergan_2016$text), ]
+df_Allergan_2018<- df_Allergan_2018[!duplicated(df_Allergan_2018$text), ]
+
+df_Allergan_2016$sentiment_score<- NULL
+df_Allergan_2018$sentiment_score<- NULL
+df_Allergan_2016<- unique(df_Allergan_2016)
+df_Allergan_2018<- unique(df_Allergan_2018)
+df_Allergan_2016$sentiment_score <- get_sentiment(df_Allergan_2016$text)
+df_Allergan_2018$sentiment_score <- get_sentiment(df_Allergan_2018$text)
+
+#2016
+#Model
+model_AGN2016 <- lm(PRC ~ sentiment_score, data = df_Allergan_2016)
+summary(model_AGN2016)
+
+#Assumptions
+#L 
+AGN_2016<- plot(model_AGN2016$residuals ~ model_AGN2016$fitted.values)
+ggplot(df_Allergan_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AGN 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AGN2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AGN2016)
+
+#Norm
+shapiro.test(model_AGN2016$residuals)
+
+#2018
+#Model
+model_AGN2018 <- lm(PRC ~ sentiment_score, data = df_Allergan_2018)
+summary(model_AGN2018)
+
+#Assumptions
+#L 
+AGN_2018<- plot(model_AGN2018$residuals ~ model_AGN2018$fitted.values)
+ggplot(df_Allergan_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AGN 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AGN2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AGN2018)
+
+#Norm
+shapiro.test(model_AGN2018$residuals)
+
+stargazer(model_AGN2016, model_AGN2018)
+```
+
+```{r}
+df_Humana_2016$text <- sapply(df_Humana_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Humana_2016 <- df_Humana_2016[grep("\\w", df_Humana_2016$text), ]
+
+df_Humana_2018$text <- sapply(df_Humana_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Humana_2018 <- df_Humana_2018[grep("\\w", df_Humana_2018$text), ]
+
+df_Humana_2016<- df_Humana_2016[!duplicated(df_Humana_2016$text), ]
+df_Humana_2018<- df_Humana_2018[!duplicated(df_Humana_2018$text), ]
+
+df_Humana_2016$sentiment_score<- NULL
+df_Humana_2018$sentiment_score<- NULL
+df_Humana_2016<- unique(df_Humana_2016)
+df_Humana_2018<- unique(df_Humana_2018)
+df_Humana_2016$sentiment_score <- get_sentiment(df_Humana_2016$text)
+df_Humana_2018$sentiment_score <- get_sentiment(df_Humana_2018$text)
+
+#2016
+#Model
+model_HUM2016 <- lm(PRC ~ sentiment_score, data = df_Humana_2016)
+summary(model_HUM2016)
+
+#Assumptions
+#L 
+
+ggplot(df_Humana_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity HUM 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_HUM2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_HUM2016)
+
+#Norm
+shapiro.test(model_HUM2016$residuals)
+
+#2018
+#Model
+model_HUM2018 <- lm(PRC ~ sentiment_score, data = df_Humana_2018)
+summary(model_HUM2018)
+
+#Assumptions
+#L 
+ggplot(df_Humana_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity HUM 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_HUM2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_HUM2018)
+
+#Norm
+shapiro.test(model_HUM2018$residuals)
+
+stargazer(model_HUM2016, model_HUM2018)
+
+```
+
+```{r}
+df_CB_autodesk_2016$text <- sapply(df_CB_autodesk_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_CB_autodesk_2016 <- df_CB_autodesk_2016[grep("\\w", df_CB_autodesk_2016$text), ]
+
+df_CB_autodesk_2018$text <- sapply(df_CB_autodesk_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_CB_autodesk_2018 <- df_CB_autodesk_2018[grep("\\w", df_CB_autodesk_2018$text), ]
+
+df_CB_autodesk_2016<- df_CB_autodesk_2016[!duplicated(df_CB_autodesk_2016$text), ]
+df_CB_autodesk_2018<- df_CB_autodesk_2018[!duplicated(df_CB_autodesk_2018$text), ]
+
+df_CB_autodesk_2016$sentiment_score <- NULL
+df_CB_autodesk_2018$sentiment_score<- NULL
+df_CB_autodesk_2016<-unique(df_CB_autodesk_2016)
+df_CB_autodesk_2018 <-unique(df_CB_autodesk_2018)
+df_CB_autodesk_2016$sentiment_score <- get_sentiment(df_CB_autodesk_2016$text)
+df_CB_autodesk_2018$sentiment_score <- get_sentiment(df_CB_autodesk_2018$text)
+
+#Model
+model_CBauto2016 <- lm(PRC ~ sentiment_score, data = df_CB_autodesk_2016)
+summary(model_CBauto2016)
+
+#Assumptions
+#L 
+plot(model_CBauto2016$residuals ~ model_CBauto2016$fitted.values)
+ggplot(df_CB_autodesk_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ADSK 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CBauto2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CBauto2016)
+
+#Norm
+shapiro.test(model_CBauto2016$residuals)
+
+#Model
+model_CBauto2018 <- lm(PRC ~ sentiment_score, data = df_CB_autodesk_2018)
+summary(model_CBauto2016)
+
+#Assumptions
+#L 
+plot(model_CBauto2016$residuals ~ model_CBauto2016$fitted.values)
+ggplot(df_CB_autodesk_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ADSK 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CBauto2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CBauto2018)
+
+#Norm
+shapiro.test(model_CBauto2018$residuals)
+
+stargazer(model_CBauto2016, model_CBauto2018)
+```
+
+```{r}
+
+df_equinox_2018$text <- sapply(df_equinox_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_equinox_2018 <- df_equinox_2018[grep("\\w", df_equinox_2018$text), ]
+
+
+
+df_equinox_2018<- df_equinox_2018[!duplicated(df_equinox_2018$text), ]
+
+df_equinox_2018$sentiment_score<- NULL
+df_equinox_2018<- unique(df_equinox_2018)
+df_equinox_2018$sentiment_score <- get_sentiment(df_equinox_2018$text)
+
+#Model
+model_EQIX <- lm(PRC ~ sentiment_score, data = df_equinox_2018)
+summary(model_EQIX)
+
+#Assumptions
+#L 
+plot(model_EQIX$residuals ~ model_EQIX$fitted.values)
+ggplot(df_equinox_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EQIX 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EQIX)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EQIX)
+
+#Norm
+shapiro.test(model_EQIX$residuals)
+
+stargazer(model_EQIX)
+
+```
+
+```{r}
+df_cisco_2016$text <- sapply(df_cisco_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_cisco_2016 <- df_cisco_2016[grep("\\w", df_cisco_2016$text), ]
+
+df_cisco_2018$text <- sapply(df_cisco_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_cisco_2018 <- df_cisco_2018[grep("\\w", df_cisco_2018$text), ]
+
+df_cisco_2016<- df_cisco_2016[!duplicated(df_cisco_2016$text), ]
+df_cisco_2018<- df_cisco_2018[!duplicated(df_cisco_2018$text), ]
+
+df_cisco_2016$sentiment_score<- NULL
+df_cisco_2018$sentiment_score<- NULL
+df_cisco_2016<- unique(df_cisco_2016)
+df_cisco_2018<- unique(df_cisco_2018)
+df_cisco_2016$sentiment_score <- get_sentiment(df_cisco_2016$text)
+df_cisco_2018$sentiment_score <- get_sentiment(df_cisco_2018$text)
+
+#2016
+#Model
+model_CSCO2016 <- lm(PRC ~ sentiment_score, data = df_cisco_2016)
+summary(model_CSCO2016)
+
+#Assumptions
+#L 
+plot(model_CSCO2016$residuals ~ model_CSCO2016$fitted.values)
+ggplot(df_cisco_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity CSCO 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CSCO2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CSCO2016)
+
+#Norm
+shapiro.test(model_CSCO2016$residuals)
+
+#2018
+#Model
+model_CSCO2018 <- lm(PRC ~ sentiment_score, data = df_cisco_2018)
+summary(model_CSCO2018)
+
+#Assumptions
+#L 
+plot(model_CSCO2018$residuals ~ model_CSCO2018$fitted.values)
+ggplot(df_cisco_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity CSCO 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CSCO2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CSCO2018)
+
+#Norm
+shapiro.test(model_CSCO2018$residuals)
+
+stargazer(model_CSCO2016, model_CSCO2018)
+```
+
+```{r}
+df_EBAY_2016$text <- sapply(df_EBAY_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_EBAY_2016 <- df_EBAY_2016[grep("\\w", df_EBAY_2016$text), ]
+
+df_EBAY_2018$text <- sapply(df_EBAY_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_EBAY_2018 <- df_EBAY_2018[grep("\\w", df_EBAY_2018$text), ]
+
+df_EBAY_2016<- df_EBAY_2016[!duplicated(df_EBAY_2016$text), ]
+df_EBAY_2018<- df_EBAY_2018[!duplicated(df_EBAY_2018$text), ]
+
+df_EBAY_2016$sentiment_score<- NULL
+df_EBAY_2018$sentiment_score<- NULL
+df_EBAY_2016<- unique(df_EBAY_2016)
+df_EBAY_2018<- unique(df_EBAY_2018)
+df_EBAY_2016$sentiment_score <- get_sentiment(df_EBAY_2016$text)
+df_EBAY_2018$sentiment_score <- get_sentiment(df_EBAY_2018$text)
+
+#2016
+#Model
+model_EBAY2016 <- lm(PRC ~ sentiment_score, data = df_EBAY_2016)
+summary(model_EBAY2016)
+
+#Assumptions
+#L 
+plot(model_EBAY2016$residuals ~ model_EBAY2016$fitted.values)
+ggplot(df_EBAY_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EBAY 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EBAY2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EBAY2016)
+
+#Norm
+shapiro.test(model_EBAY2016$residuals)
+
+#2018
+#Model
+model_EBAY2018 <- lm(PRC ~ sentiment_score, data = df_EBAY_2018)
+summary(model_EBAY2018)
+
+#Assumptions
+#L 
+plot(model_EBAY2018$residuals ~ model_EBAY2018$fitted.values)
+ggplot(df_EBAY_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EBAY 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EBAY2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EBAY2018)
+
+#Norm
+shapiro.test(model_EBAY2018$residuals)
+
+stargazer(model_EBAY2016, model_EBAY2018)
+
+```
+
+```{r}
+df_Davita_2016$text <- sapply(df_Davita_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Davita_2016 <- df_Davita_2016[grep("\\w", df_Davita_2016$text), ]
+
+df_Davita_2017$text <- sapply(df_Davita_2017$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Davita_2017 <- df_Davita_2017[grep("\\w", df_Davita_2017$text), ]
+
+df_Davita_2016<- df_Davita_2016[!duplicated(df_Davita_2016$text), ]
+df_Davita_2017<- df_Davita_2017[!duplicated(df_Davita_2017$text), ]
+
+df_Davita_2016 <- unique(df_Davita_2016)
+df_Davita_2016$sentiment_score <- get_sentiment(df_Davita_2016$text)
+
+df_Davita_2017 <- unique(df_Davita_2017)
+df_Davita_2017$sentiment_score <- get_sentiment(df_Davita_2017$text)
+
+#2017
+#Model
+model_DVA2016<- lm(PRC ~ sentiment_score, data = df_Davita_2016)
+summary(model_DVA2016)
+
+#Assumptions
+#L 
+plot(model_DVA2016$residuals ~ model_DVA2016$fitted.values)
+ggplot(df_Davita_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DVA 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DVA2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DVA2016)
+
+#Norm
+shapiro.test(model_DVA2016$residuals)
+
+#2017
+#Model
+model_DVA2017 <- lm(PRC ~ sentiment_score, data = df_Davita_2017)
+summary(model_DVA2017)
+
+#Assumptions
+#L 
+plot(model_DVA2017$residuals ~ model_DVA2017$fitted.values)
+ggplot(df_Davita_2017, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DVA 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DVA2017)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DVA2017)
+
+#Norm
+shapiro.test(model_DVA2017$residuals)
+
+stargazer(model_DVA2016, model_DVA2017)
+
+
+
+```
+
+```{r}
+df_Illumina_2016$text <- sapply(df_Illumina_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Illumina_2016 <- df_Illumina_2016[grep("\\w", df_Illumina_2016$text), ]
+
+df_Illumina_2018$text <- sapply(df_Illumina_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Illumina_2018 <- df_Illumina_2018[grep("\\w", df_Illumina_2018$text), ]
+
+df_Illumina_2016<- df_Illumina_2016[!duplicated(df_Illumina_2016$text), ]
+df_Illumina_2018<- df_Illumina_2018[!duplicated(df_Illumina_2018$text), ]
+
+df_Illumina_2016 <- unique(df_Illumina_2016)
+df_Illumina_2016$sentiment_score <- get_sentiment(df_Illumina_2016$text)
+
+df_Illumina_2018 <- unique(df_Illumina_2018)
+df_Illumina_2018$sentiment_score <- get_sentiment(df_Illumina_2018$text)
+
+#2016
+#Model
+model_ILMN2016 <- lm(PRC ~ sentiment_score, data = df_Illumina_2016)
+summary(model_ILMN2016)
+
+#Assumptions
+#L 
+plot(model_ILMN2016$residuals ~ model_ILMN2016$fitted.values)
+ggplot(df_Illumina_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ILMN 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_ILMN2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_ILMN2016)
+
+#Norm
+shapiro.test(model_ILMN2016$residuals)
+
+#2018
+#Model
+model_ILMN2018 <- lm(PRC ~ sentiment_score, data = df_Illumina_2018)
+summary(model_ILMN2018)
+
+#Assumptions
+#L 
+plot(model_ILMN2018$residuals ~ model_ILMN2018$fitted.values)
+ggplot(df_Illumina_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity ILMN 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_ILMN2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_ILMN2018)
+
+#Norm
+shapiro.test(model_ILMN2018$residuals)
+
+stargazer(model_ILMN2016, model_ILMN2018)
+
+```
+
+```{r}
+df_Homedepot_2013$text <- sapply(df_Homedepot_2013$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Homedepot_2013 <- df_Homedepot_2013[grep("\\w", df_Homedepot_2013$text), ]
+
+
+
+df_Homedepot_2013<- df_Homedepot_2013[!duplicated(df_Homedepot_2013$text), ]
+df_Homedepot_2013 <- unique(df_Homedepot_2013)
+df_Homedepot_2013$sentiment_score <- get_sentiment(df_Homedepot_2013$text)
+
+#Model
+model_HD <- lm(PRC ~ sentiment_score, data = df_Homedepot_2013)
+summary(model_HD)
+
+#Assumptions
+#L 
+plot(model_HD$residuals ~ model_HD$fitted.values)
+ggplot(df_Homedepot_2013, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity HD 2013", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_HD)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_HD)
+
+#Norm
+shapiro.test(model_HD$residuals)
+
+stargazer(model_HD)
+
+
+```
+
+```{r}
+df_Southwest_2016$text <- sapply(df_Southwest_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Southwest_2016 <- df_Southwest_2016[grep("\\w", df_Southwest_2016$text), ]
+
+df_Southwest_2018$text <- sapply(df_Southwest_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Southwest_2018 <- df_Southwest_2018[grep("\\w", df_Southwest_2018$text), ]
+
+df_Southwest_2016<- df_Southwest_2016[!duplicated(df_Southwest_2016$text), ]
+df_Southwest_2018<- df_Southwest_2018[!duplicated(df_Southwest_2018$text), ]
+
+df_Southwest_2016 <- unique(df_Southwest_2016)
+df_Southwest_2016$sentiment_score <- get_sentiment(df_Southwest_2016$text)
+
+df_Southwest_2018 <- unique(df_Southwest_2018)
+df_Southwest_2018$sentiment_score <- get_sentiment(df_Southwest_2018$text)
+
+#2016
+#Model
+model_LUV2016 <- lm(PRC ~ sentiment_score, data = df_Southwest_2016)
+summary(model_LUV2016)
+
+#Assumptions
+#L 
+plot(model_LUV2016$residuals ~ model_LUV2016$fitted.values)
+ggplot(df_Southwest_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity LUV 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_LUV2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_LUV2016)
+
+#Norm
+shapiro.test(model_LUV2016$residuals)
+
+#2018
+#Model
+model_LUV2018 <- lm(PRC ~ sentiment_score, data = df_Southwest_2018)
+summary(model_LUV2018)
+
+#Assumptions
+#L 
+plot(model_LUV2018$residuals ~ model_LUV2018$fitted.values)
+ggplot(df_Southwest_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity LUV 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_LUV2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_LUV2018)
+
+#Norm
+shapiro.test(model_LUV2018$residuals)
+
+stargazer(model_LUV2016, model_LUV2018)
+```
+
+```{r}
+df_FIS_2016$text <- sapply(df_FIS_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_FIS_2016 <- df_FIS_2016[grep("\\w", df_FIS_2016$text), ]
+
+df_FIS_2018$text <- sapply(df_FIS_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_FIS_2018 <- df_FIS_2018[grep("\\w", df_FIS_2018$text), ]
+
+df_FIS_2016<- df_FIS_2016[!duplicated(df_FIS_2016$text), ]
+df_FIS_2018<- df_FIS_2018[!duplicated(df_FIS_2018$text), ]
+
+df_FIS_2016 <- unique(df_FIS_2016)
+df_FIS_2016$sentiment_score <- get_sentiment(df_FIS_2016$text)
+
+df_FIS_2018 <- unique(df_FIS_2018)
+df_FIS_2018$sentiment_score <- get_sentiment(df_FIS_2018$text)
+
+#2016
+#Model
+model_FIS2016 <- lm(PRC ~ sentiment_score, data = df_FIS_2016)
+summary(model_FIS2016)
+
+#Assumptions
+#L 
+plot(model_FIS2016$residuals ~ model_FIS2016$fitted.values)
+ggplot(df_FIS_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity FIS 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_FIS2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_FIS2016)
+
+#Norm
+shapiro.test(model_FIS2016$residuals)
+
+#2018
+#Model
+model_FIS2018 <- lm(PRC ~ sentiment_score, data = df_FIS_2018)
+summary(model_FIS2018)
+
+#Assumptions
+#L 
+plot(model_FIS2018$residuals ~ model_FIS2018$fitted.values)
+ggplot(df_FIS_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity FIS 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_FIS2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_FIS2018)
+
+#Norm
+shapiro.test(model_FIS2018$residuals)
+
+stargazer(model_FIS2016, model_FIS2018)
+```
+
+```{r}
+df_Leucadia_2016$text <- sapply(df_Leucadia_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Leucadia_2016 <- df_Leucadia_2016[grep("\\w", df_Leucadia_2016$text), ]
+
+df_Leucadia_2018$text <- sapply(df_Leucadia_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Leucadia_2018 <- df_Leucadia_2018[grep("\\w", df_Leucadia_2018$text), ]
+
+df_Leucadia_2016<- df_Leucadia_2016[!duplicated(df_Leucadia_2016$text), ]
+df_Leucadia_2018<- df_Leucadia_2018[!duplicated(df_Leucadia_2018$text), ]
+
+df_Leucadia_2016 <- unique(df_Leucadia_2016)
+df_Leucadia_2016$sentiment_score <- get_sentiment(df_Leucadia_2016$text)
+
+df_Leucadia_2018 <- unique(df_Leucadia_2018)
+df_Leucadia_2018$sentiment_score <- get_sentiment(df_Leucadia_2018$text)
+
+#2016
+#Model
+model_LUK2016 <- lm(PRC ~ sentiment_score, data = df_Leucadia_2016)
+model_LUK2018 <- lm(PRC ~ sentiment_score, data = df_Leucadia_2018)
+summary(model_LUK2016)
+
+
+
+#Assumptions
+#L 
+plot(model_LUK2016$residuals ~ model_LUK2016$fitted.values)
+ggplot(df_Leucadia_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity LUK 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+
+
+ggplot(df_Leucadia_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity LUK 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_LUK2016)
+durbinWatsonTest(model_LUK2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_LUK2016)
+bptest(model_LUK2018)
+
+#Norm
+shapiro.test(model_LUK2016$residuals)
+shapiro.test(model_LUK2018$residuals)
+
+stargazer(model_LUK2016, model_LUK2018)
+```
+
+```{r}
+
+df_Verizon_2018$text <- sapply(df_Verizon_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Verizon_2018 <- df_Verizon_2018[grep("\\w", df_Verizon_2018$text), ]
+
+
+df_Verizon_2018<- df_Verizon_2018[!duplicated(df_Verizon_2018$text), ]
+df_Verizon_2018 <- unique(df_Verizon_2018)
+df_Verizon_2018$sentiment_score <- get_sentiment(df_Verizon_2018$text)
+
+#Model
+model_VZ <- lm(PRC ~ sentiment_score, data = df_Verizon_2018)
+summary(model_VZ)
+
+#Assumptions
+#L 
+plot(model_VZ$residuals ~ model_VZ$fitted.values)
+
+ggplot(df_Verizon_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity VZ 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_VZ)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_VZ)
+
+#Norm
+shapiro.test(model_VZ$residuals)
+
+stargazer(model_VZ)
+```
+
+```{r}
+df_WU_2016$text <- sapply(df_WU_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_WU_2016 <- df_WU_2016[grep("\\w", df_WU_2016$text), ]
+
+df_WU_2018$text <- sapply(df_WU_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_WU_2018 <- df_WU_2018[grep("\\w", df_WU_2018$text), ]
+
+df_WU_2016<- df_WU_2016[!duplicated(df_WU_2016$text), ]
+df_WU_2018<- df_WU_2018[!duplicated(df_WU_2018$text), ]
+
+df_WU_2016 <- unique(df_WU_2016)
+df_WU_2016$sentiment_score <- get_sentiment(df_WU_2016$text)
+
+df_WU_2018 <- unique(df_WU_2018)
+df_WU_2018$sentiment_score <- get_sentiment(df_WU_2018$text)
+
+#2016
+#Model
+model_WU2016 <- lm(PRC ~ sentiment_score, data = df_WU_2016)
+summary(model_WU2016)
+
+#Assumptions
+#L 
+WU_2016<- plot(model_WU2016$residuals ~ model_WU2016$fitted.values)
+ggplot(df_WU_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WU 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WU2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WU2016)
+
+#Norm
+shapiro.test(model_WU2016$residuals)
+
+#2018
+#Model
+model_WU2018 <- lm(PRC ~ sentiment_score, data = df_WU_2018)
+summary(model_WU2018)
+
+#Assumptions
+#L 
+WU_2018<- plot(model_WU2018$residuals ~ model_WU2018$fitted.values)
+ggplot(df_WU_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WU 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WU2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WU2018)
+
+#Norm
+shapiro.test(model_WU2018$residuals)
+
+stargazer(model_WU2016,model_WU2018)
+
+
+```
+
+```{r}
+
+df_RedHat_2016$text <- sapply(df_RedHat_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_RedHat_2016 <- df_RedHat_2016[grep("\\w", df_RedHat_2016$text), ]
+
+df_RedHat_2018$text <- sapply(df_RedHat_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_RedHat_2018 <- df_RedHat_2018[grep("\\w", df_RedHat_2018$text), ]
+
+df_RedHat_2016<- df_RedHat_2016[!duplicated(df_RedHat_2016$text), ]
+df_RedHat_2018<- df_RedHat_2018[!duplicated(df_RedHat_2018$text), ]
+
+df_RedHat_2016 <- unique(df_RedHat_2016)
+df_RedHat_2016$sentiment_score <- get_sentiment(df_RedHat_2016$text)
+
+df_RedHat_2018 <- unique(df_RedHat_2018)
+df_RedHat_2018$sentiment_score <- get_sentiment(df_RedHat_2018$text)
+
+#2016
+#Model
+model_RHT2016 <- lm(PRC ~ sentiment_score, data = df_RedHat_2016)
+summary(model_RHT2016)
+
+#Assumptions
+#L 
+plot(model_RHT2016$residuals ~ model_RHT2016$fitted.values)
+
+RHT_2016<- ggplot(df_RedHat_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RHT 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RHT2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RHT2016)
+
+#Norm
+shapiro.test(model_RHT2016$residuals)
+
+#2018
+#Model
+model_RHT2018 <- lm(PRC ~ sentiment_score, data = df_RedHat_2018)
+summary(model_RHT2018)
+
+#Assumptions
+#L 
+plot(model_RHT2018$residuals ~ model_RHT2018$fitted.values)
+
+RHT_2018<- ggplot(df_RedHat_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RHT 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RHT2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RHT2018)
+
+#Norm
+shapiro.test(model_RHT2018$residuals)
+
+stargazer(model_RHT2016, model_RHT2018)
+```
+
+```{r}
+df_AMZN_2016$text <- sapply(df_AMZN_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AMZN_2016 <- df_AMZN_2016[grep("\\w", df_AMZN_2016$text), ]
+
+df_AMZN_2018$text <- sapply(df_AMZN_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AMZN_2018 <- df_AMZN_2018[grep("\\w", df_AMZN_2018$text), ]
+
+df_AMZN_2016<- df_AMZN_2016[!duplicated(df_AMZN_2016$text), ]
+df_AMZN_2018<- df_AMZN_2018[!duplicated(df_AMZN_2018$text), ]
+
+df_AMZN_2016 <- unique(df_AMZN_2016)
+df_AMZN_2016$sentiment_score <- get_sentiment(df_AMZN_2016$text)
+
+df_AMZN_2018 <- unique(df_AMZN_2018)
+df_AMZN_2018$sentiment_score <- get_sentiment(df_AMZN_2018$text)
+
+#2016
+#Model
+model_AMZN2016 <- lm(PRC ~ sentiment_score, data = df_AMZN_2016)
+summary(model_AMZN2016)
+
+#Assumptions
+#L 
+plot(model_AMZN2016$residuals ~ model_AMZN2016$fitted.values)
+
+AMZN_2016<- ggplot(df_AMZN_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AMZN 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AMZN2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AMZN2016)
+
+#Norm
+shapiro.test(model_AMZN2016$residuals)
+
+#2018
+#Model
+model_AMZN2018 <- lm(PRC ~ sentiment_score, data = df_AMZN_2018)
+summary(model_AMZN2018)
+
+#Assumptions
+#L 
+plot(model_AMZN2018$residuals ~ model_AMZN2018$fitted.values)
+
+AMZN_2018<- ggplot(df_AMZN_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AMZN 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AMZN2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AMZN2018)
+
+#Norm
+shapiro.test(model_AMZN2018$residuals)
+
+stargazer(model_AMZN2016, model_AMZN2018)
+```
+
+```{r}
+
+df_GE_2016$text <- sapply(df_GE_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GE_2016 <- df_GE_2016[grep("\\w", df_GE_2016$text), ]
+
+df_GE_2017$text <- sapply(df_GE_2017$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GE_2017 <- df_GE_2017[grep("\\w", df_GE_2017$text), ]
+
+df_GE_2016<- df_GE_2016[!duplicated(df_GE_2016$text), ]
+df_GE_2017<- df_GE_2017[!duplicated(df_GE_2017$text), ]
+
+df_GE_2016 <- unique(df_GE_2016)
+df_GE_2016$sentiment_score <- get_sentiment(df_GE_2016$text)
+
+df_GE_2017 <- unique(df_GE_2017)
+df_GE_2017$sentiment_score <- get_sentiment(df_GE_2017$text)
+
+#2016
+#Model
+model_GE2016 <- lm(PRC ~ sentiment_score, data = df_GE_2016)
+summary(model_GE2016)
+
+#Assumptions
+#L 
+
+ggplot(df_GE_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GE 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+plot(model_GE2016$residuals ~ model_GE2016$fitted.values)
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GE2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GE2016)
+
+#Norm
+shapiro.test(model_GE2016$residuals)
+
+#2018
+#Model
+model_GE2017 <- lm(PRC ~ sentiment_score, data = df_GE_2017)
+summary(model_GE2017)
+
+#Assumptions
+#L 
+ggplot(df_GE_2017, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GE 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+plot(model_GE2017$residuals ~ model_GE2017$fitted.values)
+
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GE2017)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GE2017)
+
+#Norm
+shapiro.test(model_GE2017$residuals)
+
+stargazer(model_GE2016, model_GE2017)
+```
+
+```{r}
+
+df_Fiserv_2016$text <- sapply(df_Fiserv_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Fiserv_2016 <- df_Fiserv_2016[grep("\\w", df_Fiserv_2016$text), ]
+
+df_Fiserv_2018$text <- sapply(df_Fiserv_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Fiserv_2018 <- df_Fiserv_2018[grep("\\w", df_Fiserv_2018$text), ]
+
+df_Fiserv_2016<- df_Fiserv_2016[!duplicated(df_Fiserv_2016$text), ]
+df_Fiserv_2018<- df_Fiserv_2018[!duplicated(df_Fiserv_2018$text), ]
+
+df_Fiserv_2016 <- unique(df_Fiserv_2016)
+df_Fiserv_2016$sentiment_score <- get_sentiment(df_Fiserv_2016$text)
+
+df_Fiserv_2018 <- unique(df_Fiserv_2018)
+df_Fiserv_2018$sentiment_score <- get_sentiment(df_Fiserv_2018$text)
+
+#2016
+#Model
+model_FISV2016 <- lm(PRC ~ sentiment_score, data = df_Fiserv_2016)
+summary(model_FISV2016)
+
+#Assumptions
+#L 
+plot(model_FISV2016$residuals ~ model_FISV2016$fitted.values)
+
+ggplot(df_Fiserv_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity FISV 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_FISV2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_FISV2016)
+
+#Norm
+shapiro.test(model_FISV2016$residuals)
+
+#2018
+#Model
+model_FISV2018 <- lm(PRC ~ sentiment_score, data = df_Fiserv_2018)
+summary(model_FISV2018)
+
+#Assumptions
+#L 
+plot(model_FISV2018$residuals ~ model_FISV2018$fitted.values)
+
+ggplot(df_Fiserv_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity FISV 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_FISV2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_FISV2018)
+
+#Norm
+shapiro.test(model_FISV2018$residuals)
+
+stargazer(model_FISV2016, model_FISV2018)
+```
+
+```{r}
+
+
+df_WM_2018$text <- sapply(df_WM_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_WM_2018 <- df_WM_2018[grep("\\w", df_WM_2018$text), ]
+
+df_WM_2018<- df_WM_2018[!duplicated(df_WM_2018$text), ]
+df_WM_2018 <- unique(df_WM_2018)
+df_WM_2018$sentiment_score <- get_sentiment(df_WM_2018$text)
+
+#Model
+model_WM <- lm(PRC ~ sentiment_score, data = df_WM_2018)
+summary(model_WM)
+
+#Assumptions
+#L 
+plot(model_WM$residuals ~ model_WM$fitted.values)
+
+
+ggplot(df_WM_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WM 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WM)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WM)
+
+#Norm
+shapiro.test(model_WM$residuals)
+
+stargazer(model_WM)
+
+```
+
+```{r}
+df_Wills_2016$text <- sapply(df_Wills_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Wills_2016 <- df_Wills_2016[grep("\\w", df_Wills_2016$text), ]
+
+df_Wills_2018$text <- sapply(df_Wills_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Wills_2018 <- df_Wills_2018[grep("\\w", df_Wills_2018$text), ]
+
+df_Wills_2016<- df_Wills_2016[!duplicated(df_Wills_2016$text), ]
+df_Wills_2018<- df_Wills_2018[!duplicated(df_Wills_2018$text), ]
+
+df_Wills_2016 <- unique(df_Wills_2016)
+df_Wills_2016$sentiment_score <- get_sentiment(df_Wills_2016$text)
+
+df_Wills_2018 <- unique(df_Wills_2018)
+df_Wills_2018$sentiment_score <- get_sentiment(df_Wills_2018$text)
+
+#2016
+#Model
+model_WLTW2016<- lm(PRC ~ sentiment_score, data = df_Wills_2016)
+summary(model_WLTW2016)
+
+#Assumptions
+#L 
+plot(model_WLTW2016$residuals ~ model_WLTW2016$fitted.values)
+
+ggplot(df_Wills_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WLTW 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WLTW2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WLTW2016)
+
+#Norm
+shapiro.test(model_WLTW2016$residuals)
+
+#2018
+#Model
+model_WLTW2018 <- lm(PRC ~ sentiment_score, data = df_Wills_2018)
+summary(model_WLTW2018)
+
+#Assumptions
+#L 
+plot(model_WLTW2018$residuals ~ model_WLTW2018$fitted.values)
+
+ggplot(df_Wills_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WLTW 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WLTW2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WLTW2018)
+
+#Norm
+shapiro.test(model_WLTW2018$residuals)
+
+stargazer(model_WLTW2016, model_WLTW2018)
+```
+
+```{r}
+df_tripadvisor_2016$text <- sapply(df_tripadvisor_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_tripadvisor_2016 <- df_tripadvisor_2016[grep("\\w", df_tripadvisor_2016$text), ]
+
+df_tripadvisor_2018$text <- sapply(df_tripadvisor_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_tripadvisor_2018 <- df_tripadvisor_2018[grep("\\w", df_tripadvisor_2018$text), ]
+
+df_tripadvisor_2016<- df_tripadvisor_2016[!duplicated(df_tripadvisor_2016$text), ]
+df_tripadvisor_2018<- df_tripadvisor_2018[!duplicated(df_tripadvisor_2018$text), ]
+
+df_tripadvisor_2016 <- unique(df_tripadvisor_2016)
+df_tripadvisor_2016$sentiment_score <- get_sentiment(df_tripadvisor_2016$text)
+
+df_tripadvisor_2018 <- unique(df_tripadvisor_2018)
+df_tripadvisor_2018$sentiment_score <- get_sentiment(df_tripadvisor_2018$text)
+
+#2016
+#Model
+model_TRIP2016 <- lm(PRC ~ sentiment_score, data = df_tripadvisor_2016)
+summary(model_TRIP2016)
+
+#Assumptions
+#L 
+plot(model_TRIP2016$residuals ~ model_TRIP2016$fitted.values)
+
+ggplot(df_tripadvisor_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity TRIP 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_TRIP2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_TRIP2016)
+
+#Norm
+shapiro.test(model_TRIP2016$residuals)
+
+#2018
+#Model
+model_TRIP2018 <- lm(PRC ~ sentiment_score, data = df_tripadvisor_2018)
+summary(model_TRIP2018)
+
+#Assumptions
+#L 
+plot(model_TRIP2018$residuals ~ model_TRIP2018$fitted.values)
+
+ggplot(df_tripadvisor_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity TRIP 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_TRIP2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_TRIP2018)
+
+#Norm
+shapiro.test(model_TRIP2018$residuals)
+
+stargazer(model_TRIP2016, model_TRIP2018)
+
+```
+
+```{r}
+df_EXPE_2016$text <- sapply(df_EXPE_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_EXPE_2016 <- df_EXPE_2016[grep("\\w", df_EXPE_2016$text), ]
+
+df_EXPE_2017$text <- sapply(df_EXPE_2017$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_EXPE_2017 <- df_EXPE_2017[grep("\\w", df_EXPE_2017$text), ]
+
+df_EXPE_2016<- df_EXPE_2016[!duplicated(df_EXPE_2016$text), ]
+df_EXPE_2018<- df_EXPE_2017[!duplicated(df_EXPE_2017$text), ]
+
+df_EXPE_2016 <- unique(df_EXPE_2016)
+df_EXPE_2016$sentiment_score <- get_sentiment(df_EXPE_2016$text)
+
+df_EXPE_2017 <- unique(df_EXPE_2017)
+df_EXPE_2017$sentiment_score <- get_sentiment(df_EXPE_2017$text)
+
+#2016
+#Model
+model_EXPE2016<- lm(PRC ~ sentiment_score, data = df_EXPE_2016)
+summary(model_EXPE2016)
+
+#Assumptions
+#L 
+plot(model_DAVK2016$residuals ~ model_DAVK2016$fitted.values)
+
+ggplot(df_EXPE_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EXPE 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EXPE2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EXPE2016)
+
+#Norm
+shapiro.test(model_EXPE2016$residuals)
+
+#2018
+#Model
+model_EXPE2017 <- lm(PRC ~ sentiment_score, data = df_EXPE_2017)
+summary(model_EXPE2017)
+
+#Assumptions
+#L 
+plot(model_DAVK2018$residuals ~ model_DAVK2018$fitted.values)
+
+ggplot(df_EXPE_2017, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity EXPE 2017", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_EXPE2017)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_EXPE2017)
+
+#Norm
+shapiro.test(model_EXPE2017$residuals)
+
+stargazer(model_EXPE2017, model_EXPE2016)
+```
+
+```{r}
+df_DavitaK_2016$text <- sapply(df_DavitaK_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_DavitaK_2016 <- df_DavitaK_2016[grep("\\w", df_DavitaK_2016$text), ]
+
+df_DavitaK_2018$text <- sapply(df_DavitaK_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_DavitaK_2018 <- df_DavitaK_2018[grep("\\w", df_DavitaK_2018$text), ]
+
+df_DavitaK_2016<- df_DavitaK_2016[!duplicated(df_DavitaK_2016$text), ]
+df_DavitaK_2018<- df_DavitaK_2018[!duplicated(df_DavitaK_2018$text), ]
+
+df_DavitaK_2016 <- unique(df_DavitaK_2016)
+df_DavitaK_2016$sentiment_score <- get_sentiment(df_DavitaK_2016$text)
+
+df_DavitaK_2018 <- unique(df_DavitaK_2018)
+df_DavitaK_2018$sentiment_score <- get_sentiment(df_DavitaK_2018$text)
+
+#2016
+#Model
+model_DAVK2016 <- lm(PRC ~ sentiment_score, data = df_DavitaK_2016)
+summary(model_DAVK2016)
+
+#Assumptions
+#L 
+plot(model_DAVK2016$residuals ~ model_DAVK2016$fitted.values)
+
+ggplot(df_DavitaK_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DAVK 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DAVK2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DAVK2016)
+
+#Norm
+shapiro.test(model_DAVK2016$residuals)
+
+#2018
+#Model
+model_DAVK2018 <- lm(PRC ~ sentiment_score, data = df_DavitaK_2018)
+summary(model_DAVK2018)
+
+#Assumptions
+#L 
+plot(model_DAVK2018$residuals ~ model_DAVK2018$fitted.values)
+
+ggplot(df_DavitaK_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DAVK 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DAVK2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DAVK2018)
+
+#Norm
+shapiro.test(model_DAVK2018$residuals)
+
+stargazer(model_DAVK2016, model_DAVK2018)
+```
+
+```{r}
+
+df_Starbucks_2018$text <- sapply(df_Starbucks_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Starbucks_2018 <- df_Starbucks_2018[grep("\\w", df_Starbucks_2018$text), ]
+
+
+
+df_Starbucks_2018<- df_Starbucks_2018[!duplicated(df_Starbucks_2018$text), ]
+df_Starbucks_2018 <- unique(df_Starbucks_2018)
+df_Starbucks_2018$sentiment_score <- get_sentiment(df_Starbucks_2018$text)
+
+#Model
+model_SBUX <- lm(PRC ~ sentiment_score, data = df_Starbucks_2018)
+summary(model_SBUX)
+
+#Assumptions
+#L 
+plot(model_SBUX$residuals ~ model_SBUX$fitted.values)
+
+ggplot(df_Starbucks_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity SBUX 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_SBUX)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_SBUX)
+
+#Norm
+shapiro.test(model_SBUX$residuals)
+
+stargazer(model_SBUX)
+
+```
+
+```{r}
+
+
+df_McCormick_2018$text <- sapply(df_McCormick_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_McCormick_2018 <- df_McCormick_2018[grep("\\w", df_McCormick_2018$text), ]
+
+
+df_McCormick_2018<- df_McCormick_2018[!duplicated(df_McCormick_2018$text), ]
+df_McCormick_2018 <- unique(df_McCormick_2018)
+df_McCormick_2018$sentiment_score <- get_sentiment(df_McCormick_2018$text)
+
+#Model
+model_MKC <- lm(PRC ~ sentiment_score, data = df_McCormick_2018)
+summary(model_MKC)
+
+#Assumptions
+#L 
+plot(model_MKC$residuals ~ model_MKC$fitted.values)
+
+ggplot(df_McCormick_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MKC 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MKC)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MKC)
+
+#Norm
+shapiro.test(model_MKC$residuals)
+
+stargazer(model_MKC)
+```
+
+```{r}
+
+
+df_IHS_2018$text <- sapply(df_IHS_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_IHS_2018 <- df_IHS_2018[grep("\\w", df_IHS_2018$text), ]
+
+df_IHS_2018<- df_IHS_2018[!duplicated(df_IHS_2018$text), ]
+df_IHS_2018 <- unique(df_IHS_2018)
+df_IHS_2018$sentiment_score <- get_sentiment(df_IHS_2018$text)
+
+#Model
+model_IHS <- lm(PRC ~ sentiment_score, data = df_IHS_2018)
+summary(model_IHS)
+
+#Assumptions
+#L 
+plot(model_IHS$residuals ~ model_IHS$fitted.values)
+
+ggplot(df_IHS_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity IHS 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_IHS)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_IHS)
+
+#Norm
+shapiro.test(model_IHS$residuals)
+stargazer(model_IHS)
+```
+
+```{r}
+
+
+df_AMD_2018$text <- sapply(df_AMD_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AMD_2018 <- df_AMD_2018[grep("\\w", df_AMD_2018$text), ]
+
+df_AMD_2018<- df_AMD_2018[!duplicated(df_AMD_2018$text), ]
+df_AMD_2018 <- unique(df_AMD_2018)
+df_AMD_2018$sentiment_score <- get_sentiment(df_AMD_2018$text)
+
+#Model
+model_AMD <- lm(PRC ~ sentiment_score, data = df_AMD_2018)
+summary(model_AMD)
+
+#Assumptions
+#L 
+plot(model_AMD$residuals ~ model_AMD$fitted.values)
+
+ggplot(df_AMD_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AMD 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AMD)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AMD)
+
+#Norm
+shapiro.test(model_AMD$residuals)
+
+stargazer(model_AMD)
+```
+
+```{r}
+df_ResMed_2016$text <- sapply(df_ResMed_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_ResMed_2016 <- df_ResMed_2016[grep("\\w", df_ResMed_2016$text), ]
+
+df_ResMed_2018$text <- sapply(df_ResMed_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_ResMed_2018 <- df_ResMed_2018[grep("\\w", df_ResMed_2018$text), ]
+
+df_ResMed_2016<- df_ResMed_2016[!duplicated(df_ResMed_2016$text), ]
+df_ResMed_2016 <- unique(df_ResMed_2016)
+df_ResMed_2016$sentiment_score <- get_sentiment(df_ResMed_2016$text)
+
+df_ResMed_2018<- df_ResMed_2018[!duplicated(df_ResMed_2018$text), ]
+df_ResMed_2018 <- unique(df_ResMed_2018)
+df_ResMed_2018$sentiment_score <- get_sentiment(df_ResMed_2018$text)
+
+#2016
+#Model
+model_RMD2016 <- lm(PRC ~ sentiment_score, data = df_ResMed_2016)
+summary(model_RMD2016)
+
+#Assumptions
+#L 
+plot(model_RMD2016$residuals ~ model_RMD2016$fitted.values)
+
+RMD_2016<- ggplot(df_ResMed_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RMD 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RMD2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RMD2016)
+
+#Norm
+shapiro.test(model_RMD2016$residuals)
+
+#2018
+#Model
+model_RMD2018 <- lm(PRC ~ sentiment_score, data = df_ResMed_2018)
+summary(model_RMD2018)
+
+#Assumptions
+#L 
+plot(model_RMD2018$residuals ~ model_RMD2018$fitted.values)
+
+RMD_2018<- ggplot(df_ResMed_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RMD 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RMD2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RMD2018)
+
+#Norm
+shapiro.test(model_RMD2018$residuals)
+
+stargazer(model_RMD2016, model_RMD2018)
+```
+
+```{r}
+df_CA_2016$text <- sapply(df_CA_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_CA_2016 <- df_CA_2016[grep("\\w", df_CA_2016$text), ]
+
+df_CA_2018$text <- sapply(df_CA_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_CA_2018 <- df_CA_2018[grep("\\w", df_CA_2018$text), ]
+
+df_CA_2016<- df_CA_2016[!duplicated(df_CA_2016$text), ]
+df_CA_2016 <- unique(df_CA_2016)
+df_CA_2016$sentiment_score <- get_sentiment(df_CA_2016$text)
+
+df_CA_2018<- df_CA_2018[!duplicated(df_CA_2018$text), ]
+df_CA_2018 <- unique(df_CA_2018)
+df_CA_2018$sentiment_score <- get_sentiment(df_CA_2018$text)
+
+#2016
+#Model
+model_CA2016 <- lm(PRC ~ sentiment_score, data = df_CA_2016)
+summary(model_CA2016)
+
+#Assumptions
+#L 
+plot(model_CA2016$residuals ~ model_CA2016$fitted.values)
+
+ggplot(df_CA_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity CA 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CA2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CA2016)
+
+#Norm
+shapiro.test(model_CA2016$residuals)
+
+#2018
+#Model
+model_CA2018 <- lm(PRC ~ sentiment_score, data = df_CA_2018)
+summary(model_CA2018)
+
+#Assumptions
+#L 
+plot(model_CA2018$residuals ~ model_CA2018$fitted.values)
+
+ggplot(df_CA_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity CA 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_CA2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_CA2018)
+
+#Norm
+shapiro.test(model_CA2018$residuals)
+
+stargazer(model_CA2016, model_CA2018)
+```
+
+```{r}
+df_GM_2016$text <- sapply(df_GM_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GM_2016 <- df_GM_2016[grep("\\w", df_GM_2016$text), ]
+
+df_GM_2018$text <- sapply(df_GM_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GM_2018 <- df_GM_2018[grep("\\w", df_GM_2018$text), ]
+
+df_GM_2016<- df_GM_2016[!duplicated(df_GM_2016$text), ]
+df_GM_2016 <- unique(df_GM_2016)
+df_GM_2016$sentiment_score <- get_sentiment(df_GM_2016$text)
+
+df_GM_2018<- df_GM_2018[!duplicated(df_GM_2018$text), ]
+df_GM_2018 <- unique(df_GM_2018)
+df_GM_2018$sentiment_score <- get_sentiment(df_GM_2018$text)
+
+#2016
+#Model
+model_GM2016 <- lm(PRC ~ sentiment_score, data = df_GM_2016)
+summary(model_GM2016)
+
+#Assumptions
+#L 
+plot(model_GM2016$residuals ~ model_GM2016$fitted.values)
+
+ggplot(df_GM_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GM 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GM2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GM2016)
+
+#Norm
+shapiro.test(model_GM2016$residuals)
+
+#2018
+#Model
+model_GM2018 <- lm(PRC ~ sentiment_score, data = df_GM_2018)
+summary(model_GM2018)
+
+#Assumptions
+#L 
+plot(model_GM2018$residuals ~ model_GM2018$fitted.values)
+
+ggplot(df_GM_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GM 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GM2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GM2018)
+
+#Norm
+shapiro.test(model_GM2018$residuals)
+
+stargazer(model_GM2016, model_GM2018)
+
+```
+
+```{r}
+
+df_Aetna_2016$text <- sapply(df_Aetna_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Aetna_2016 <- df_Aetna_2016[grep("\\w", df_Aetna_2016$text), ]
+
+df_Aetna_2018$text <- sapply(df_Aetna_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Aetna_2018 <- df_Aetna_2018[grep("\\w", df_Aetna_2018$text), ]
+
+df_Aetna_2016<- df_Aetna_2016[!duplicated(df_Aetna_2016$text), ]
+df_Aetna_2016 <- unique(df_Aetna_2016)
+df_Aetna_2016$sentiment_score <- get_sentiment(df_Aetna_2016$text)
+
+df_Aetna_2018<- df_Aetna_2018[!duplicated(df_Aetna_2018$text), ]
+df_Aetna_2018 <- unique(df_Aetna_2018)
+df_Aetna_2018$sentiment_score <- get_sentiment(df_Aetna_2018$text)
+
+#2016
+#Model
+model_AET2016 <- lm(PRC ~ sentiment_score, data = df_Aetna_2016)
+summary(model_AET2016)
+
+#Assumptions
+#L 
+plot(model_AET2016$residuals ~ model_AET2016$fitted.values)
+
+ggplot(df_Aetna_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AET 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AET2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AET2016)
+
+#Norm
+shapiro.test(model_AET2016$residuals)
+
+#2018
+#Model
+model_AET2018 <- lm(PRC ~ sentiment_score, data = df_Aetna_2018)
+summary(model_AET2018)
+
+#Assumptions
+#L 
+plot(model_AET2018$residuals ~ model_AET2018$fitted.values)
+
+ggplot(df_Aetna_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AET 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AET2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AET2018)
+
+#Norm
+shapiro.test(model_AET2018$residuals)
+
+stargazer(model_AET2016, model_AET2018)
+```
+
+```{r}
+df_NRG_2016$text <- sapply(df_NRG_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_NRG_2016 <- df_NRG_2016[grep("\\w", df_NRG_2016$text), ]
+
+df_NRG_2018$text <- sapply(df_NRG_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_NRG_2018 <- df_NRG_2018[grep("\\w", df_NRG_2018$text), ]
+
+
+df_NRG_2016<- df_NRG_2016[!duplicated(df_NRG_2016$text), ]
+df_NRG_2016 <- unique(df_NRG_2016)
+df_NRG_2016$sentiment_score <- get_sentiment(df_NRG_2016$text)
+
+df_NRG_2018<- df_NRG_2018[!duplicated(df_NRG_2018$text), ]
+df_NRG_2018 <- unique(df_NRG_2018)
+df_NRG_2018$sentiment_score <- get_sentiment(df_NRG_2018$text)
+
+#2016
+#Model
+model_NRG2016 <- lm(PRC ~ sentiment_score, data = df_NRG_2016)
+summary(model_NRG2016)
+
+#Assumptions
+#L 
+plot(model_NRG2016$residuals ~ model_NRG2016$fitted.values)
+
+ggplot(df_NRG_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity NRG 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_NRG2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_NRG2016)
+
+#Norm
+shapiro.test(model_NRG2016$residuals)
+
+#2018
+#Model
+model_NRG2018 <- lm(PRC ~ sentiment_score, data = df_NRG_2018)
+summary(model_NRG2018)
+
+#Assumptions
+#L 
+plot(model_NRG2018$residuals ~ model_NRG2018$fitted.values)
+
+ggplot(df_NRG_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity NRG 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_NRG2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_NRG2018)
+
+#Norm
+shapiro.test(model_NRG2018$residuals)
+
+stargazer(model_NRG2016, model_NRG2018)
+
+```
+
+```{r}
+
+df_Medtronic_2016$text <- sapply(df_Medtronic_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Medtronic_2016 <- df_Medtronic_2016[grep("\\w", df_Medtronic_2016$text), ]
+
+df_Medtronic_2018$text <- sapply(df_Medtronic_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Medtronic_2018 <- df_Medtronic_2018[grep("\\w", df_Medtronic_2018$text), ]
+
+df_Medtronic_2016<- df_Medtronic_2016[!duplicated(df_Medtronic_2016$text), ]
+df_Medtronic_2016 <- unique(df_Medtronic_2016)
+df_Medtronic_2016$sentiment_score <- get_sentiment(df_Medtronic_2016$text)
+
+df_Medtronic_2018<- df_Medtronic_2018[!duplicated(df_Medtronic_2018$text), ]
+df_Medtronic_2018 <- unique(df_Medtronic_2018)
+df_Medtronic_2018$sentiment_score <- get_sentiment(df_Medtronic_2018$text)
+
+#2016
+#Model
+model_MDT2016 <- lm(PRC ~ sentiment_score, data = df_Medtronic_2016)
+summary(model_MDT2016)
+
+#Assumptions
+#L 
+plot(model_MDT2016$residuals ~ model_MDT2016$fitted.values)
+
+MDT_2016<- ggplot(df_Medtronic_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MDT 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MDT2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MDT2016)
+
+#Norm
+shapiro.test(model_MDT2016$residuals)
+
+#2018
+#Model
+model_MDT2018 <- lm(PRC ~ sentiment_score, data = df_Medtronic_2018)
+summary(model_MDT2018)
+
+#Assumptions
+#L 
+plot(model_MDT2018$residuals ~ model_MDT2018$fitted.values)
+
+MDT_2018<- ggplot(df_Medtronic_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MDT 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MDT2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MDT2018)
+
+#Norm
+shapiro.test(model_MDT2018$residuals)
+
+stargazer(model_MDT2016, model_MDT2018)
+
+```
+
+```{r}
+df_Juniper_2016$text <- sapply(df_Juniper_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Juniper_2016 <- df_Juniper_2016[grep("\\w", df_Juniper_2016$text), ]
+
+df_Juniper_2018$text <- sapply(df_Juniper_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Juniper_2018 <- df_Juniper_2018[grep("\\w", df_Juniper_2018$text), ]
+
+
+df_Juniper_2016<- df_Juniper_2016[!duplicated(df_Juniper_2016$text), ]
+df_Juniper_2016 <- unique(df_Juniper_2016)
+df_Juniper_2016$sentiment_score <- get_sentiment(df_Juniper_2016$text)
+
+df_Juniper_2018<- df_Juniper_2018[!duplicated(df_Juniper_2018$text), ]
+df_Juniper_2018 <- unique(df_Juniper_2018)
+df_Juniper_2018$sentiment_score <- get_sentiment(df_Juniper_2018$text)
+
+#2016
+#Model
+model_JNPR2016 <- lm(PRC ~ sentiment_score, data = df_Juniper_2016)
+summary(model_JNPR2016)
+
+#Assumptions
+#L 
+plot(model_JNPR2016$residuals ~ model_JNPR2016$fitted.values)
+
+ggplot(df_Juniper_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity JNPR 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_JNPR2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_JNPR2016)
+
+#Norm
+shapiro.test(model_JNPR2016$residuals)
+
+#2018
+#Model
+model_JNPR2018 <- lm(PRC ~ sentiment_score, data = df_Juniper_2018)
+summary(model_JNPR2018)
+
+#Assumptions
+#L 
+plot(model_JNPR2018$residuals ~ model_JNPR2018$fitted.values)
+
+ggplot(df_Juniper_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity JNPR 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_JNPR2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_JNPR2018)
+
+#Norm
+shapiro.test(model_JNPR2018$residuals)
+
+stargazer(model_JNPR2016, model_JNPR2018)
+```
+
+```{r}
+
+
+df_AetnaR_2018$text <- sapply(df_AetnaR_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AetnaR_2018 <- df_AetnaR_2018[grep("\\w", df_AetnaR_2018$text), ]
+
+
+df_AetnaR_2018<- df_AetnaR_2018[!duplicated(df_AetnaR_2018$text), ]
+df_AetnaR_2018 <- unique(df_AetnaR_2018)
+df_AetnaR_2018$sentiment_score <- get_sentiment(df_AetnaR_2018$text)
+
+#Model
+model_AETR <- lm(PRC ~ sentiment_score, data = df_AetnaR_2018)
+summary(model_AETR)
+
+#Assumptions
+#L 
+plot(model_AETR$residuals ~ model_AETR$fitted.values)
+
+ggplot(df_AetnaR_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AET 2018 Ramon", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AETR)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AETR)
+
+#Norm
+shapiro.test(model_AETR$residuals)
+
+stargazer(model_AETR)
+```
+
+```{r}
+df_Netflix_2016$text <- sapply(df_Netflix_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Netflix_2016 <- df_Netflix_2016[grep("\\w", df_Netflix_2016$text), ]
+
+df_Netflix_2016<- df_Netflix_2016[!duplicated(df_Netflix_2016$text), ]
+df_Netflix_2016 <- unique(df_Netflix_2016)
+df_Netflix_2016$sentiment_score <- get_sentiment(df_Netflix_2016$text)
+
+#Model
+model_NFLX <- lm(PRC ~ sentiment_score, data = df_Netflix_2016)
+summary(model_NFLX)
+
+#Assumptions
+#L 
+plot(model_NFLX$residuals ~ model_NFLX$fitted.values)
+
+ggplot(df_Netflix_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity NFLX 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_NFLX)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_NFLX)
+
+#Norm
+shapiro.test(model_NFLX$residuals)
+
+stargazer(model_NFLX)
+```
+
+```{r}
+
+
+df_Disney_2018$text <- sapply(df_Disney_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Disney_2018 <- df_Disney_2018[grep("\\w", df_Disney_2018$text), ]
+
+
+df_Disney_2018<- df_Disney_2018[!duplicated(df_Disney_2018$text), ]
+df_Disney_2018 <- unique(df_Disney_2018)
+df_Disney_2018$sentiment_score <- get_sentiment(df_Disney_2018$text)
+
+#Model
+model_DIS <- lm(PRC ~ sentiment_score, data = df_Disney_2018)
+summary(model_DIS)
+
+#Assumptions
+#L 
+plot(model_DIS$residuals ~ model_DIS$fitted.values)
+
+Disney_2018<- ggplot(df_Disney_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DIS 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DIS)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DIS)
+
+#Norm
+shapiro.test(model_DIS$residuals)
+
+stargazer(model_DIS)
+```
+
+```{r}
+df_Fox_2015$text <- sapply(df_Fox_2015$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Fox_2015 <- df_Fox_2015[grep("\\w", df_Fox_2015$text), ]
+
+df_Fox_2015<- df_Fox_2015[!duplicated(df_Fox_2015$text), ]
+df_Fox_2015 <- unique(df_Fox_2015)
+df_Fox_2015$sentiment_score <- get_sentiment(df_Fox_2015$text)
+
+#Model
+model_FOX <- lm(PRC ~ sentiment_score, data = df_Fox_2015)
+summary(model_FOX)
+
+#Assumptions
+#L 
+plot(model_FOX$residuals ~ model_FOX$fitted.values)
+
+ggplot(df_Fox_2015, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity FOX 2015", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_FOX)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_FOX)
+
+#Norm
+shapiro.test(model_FOX$residuals)
+
+stargazer(model_FOX)
+
+```
+
+```{r}
+
+df_Microsoft_2016$text <- sapply(df_Microsoft_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Microsoft_2016 <- df_Microsoft_2016[grep("\\w", df_Microsoft_2016$text), ]
+
+df_Microsoft_2018$text <- sapply(df_Microsoft_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Microsoft_2018 <- df_Microsoft_2018[grep("\\w", df_Microsoft_2018$text), ]
+
+df_Microsoft_2016<- df_Microsoft_2016[!duplicated(df_Microsoft_2016$text), ]
+df_Microsoft_2016 <- unique(df_Microsoft_2016)
+df_Microsoft_2016$sentiment_score <- get_sentiment(df_Microsoft_2016$text)
+
+df_Microsoft_2018<- df_Microsoft_2018[!duplicated(df_Microsoft_2018$text), ]
+df_Microsoft_2018 <- unique(df_Microsoft_2018)
+df_Microsoft_2018$sentiment_score <- get_sentiment(df_Microsoft_2018$text)
+
+#2016
+#Model
+model_MSFT2016 <- lm(PRC ~ sentiment_score, data = df_Microsoft_2016)
+summary(model_MSFT2016)
+
+#Assumptions
+#L 
+plot(model_MSFT2016$residuals ~ model_MSFT2016$fitted.values)
+
+MSFT_2016<- ggplot(df_Microsoft_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MSFT 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MSFT2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MSFT2016)
+
+#Norm
+shapiro.test(model_MSFT2016$residuals)
+
+#2018
+#Model
+model_MSFT2018 <- lm(PRC ~ sentiment_score, data = df_Microsoft_2018)
+summary(model_MSFT2018)
+
+#Assumptions
+#L 
+plot(model_MSFT2018$residuals ~ model_MSFT2018$fitted.values)
+
+MSFT_2018<- ggplot(df_Microsoft_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MSFT 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MSFT2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MSFT2018)
+
+#Norm
+shapiro.test(model_MSFT2018$residuals)
+
+stargazer(model_MSFT2016, model_MSFT2018)
+```
+
+```{r}
+df_Juniper_S_2014$text <- sapply(df_Juniper_S_2014$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Juniper_S_2014 <- df_Juniper_S_2014[grep("\\w", df_Juniper_S_2014$text), ]
+
+
+
+df_Juniper_S_2014<- df_Juniper_S_2014[!duplicated(df_Juniper_S_2014$text), ]
+df_Juniper_S_2014 <- unique(df_Juniper_S_2014)
+df_Juniper_S_2014$sentiment_score <- get_sentiment(df_Juniper_S_2014$text)
+
+#Model
+model_JNPRS <- lm(PRC ~ sentiment_score, data = df_Juniper_S_2014)
+summary(model_JNPRS)
+
+#Assumptions
+#L 
+plot(model_JNPRS6$residuals ~ model_JNPRS$fitted.values)
+
+ggplot(df_Juniper_S_2014, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity JNPR 2014", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_JNPRS)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_JNPRS)
+
+#Norm
+shapiro.test(model_JNPRS$residuals)
+
+stargazer(model_JNPRS)
+```
+
+```{r}
+df_SYFM_2016$text <- sapply(df_SYFM_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_SYFM_2016 <- df_SYFM_2016[grep("\\w", df_SYFM_2016$text), ]
+
+df_SYFM_2018$text <- sapply(df_SYFM_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_SYFM_2018 <- df_SYFM_2018[grep("\\w", df_SYFM_2018$text), ]
+
+
+df_SYFM_2016<- df_SYFM_2016[!duplicated(df_SYFM_2016$text), ]
+df_SYFM_2016 <- unique(df_SYFM_2016)
+df_SYFM_2016$sentiment_score <- get_sentiment(df_SYFM_2016$text)
+
+df_SYFM_2018<- df_SYFM_2018[!duplicated(df_SYFM_2018$text), ]
+df_SYFM_2018 <- unique(df_SYFM_2018)
+df_SYFM_2018$sentiment_score <- get_sentiment(df_SYFM_2018$text)
+
+#2016
+#Model
+model_SYFM2016 <- lm(PRC ~ sentiment_score, data = df_SYFM_2016)
+summary(model_SYFM2016)
+
+#Assumptions
+#L 
+plot(model_SYFM2016$residuals ~ model_SYFM2016$fitted.values)
+
+ggplot(df_SYFM_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity SYFM 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_SYFM2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_SYFM2016)
+
+#Norm
+shapiro.test(model_SYFM2016$residuals)
+
+#2018
+#Model
+model_SYFM2018 <- lm(PRC ~ sentiment_score, data = df_SYFM_2018)
+summary(model_SYFM2018)
+
+#Assumptions
+#L 
+plot(model_SYFM2018$residuals ~ model_SYFM2018$fitted.values)
+
+ggplot(df_SYFM_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity SYFM 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_SYFM2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_SYFM2018)
+
+#Norm
+shapiro.test(model_SYFM2018$residuals)
+
+stargazer(model_SYFM2016, model_SYFM2018)
+```
+
+```{r}
+df_Southern_2016$text <- sapply(df_Southern_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Southern_2016 <- df_Southern_2016[grep("\\w", df_Southern_2016$text), ]
+
+df_Southern_2018$text <- sapply(df_Southern_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Southern_2018 <- df_Southern_2018[grep("\\w", df_Southern_2018$text), ]
+
+
+df_Southern_2016<- df_Southern_2016[!duplicated(df_Southern_2016$text), ]
+df_Southern_2016 <- unique(df_Southern_2016)
+df_Southern_2016$sentiment_score <- get_sentiment(df_Southern_2016$text)
+
+df_Southern_2018<- df_Southern_2018[!duplicated(df_Southern_2018$text), ]
+df_Southern_2018 <- unique(df_Southern_2018)
+df_Southern_2018$sentiment_score <- get_sentiment(df_Southern_2018$text)
+
+#Model
+model_SO2016 <- lm(PRC ~ sentiment_score, data = df_Southern_2016)
+summary(model_SO2016)
+
+#Assumptions
+#L 
+plot(model_SO2016$residuals ~ model_SO2016$fitted.values)
+
+ggplot(df_Southern_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity SO 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_SO2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_SO2016)
+
+#Norm
+shapiro.test(model_SO2016$residuals)
+
+#2018
+#Model
+model_SO2018 <- lm(PRC ~ sentiment_score, data = df_Southern_2018)
+summary(model_SO2018)
+
+#Assumptions
+#L 
+plot(model_SO2018$residuals ~ model_SO2018$fitted.values)
+
+ggplot(df_Southern_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity SO 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_SO2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_SO2018)
+
+#Norm
+shapiro.test(model_SO2018$residuals)
+
+stargazer(model_SO2016, model_SO2018)
+
+```
+
+```{r}
+
+df_Apple_2016$text <- sapply(df_Apple_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Apple_2016 <- df_Apple_2016[grep("\\w", df_Apple_2016$text), ]
+
+df_Apple_2018$text <- sapply(df_Apple_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Apple_2018 <- df_Apple_2018[grep("\\w", df_Apple_2018$text), ]
+
+df_Apple_2016<- df_Apple_2016[!duplicated(df_Apple_2016$text), ]
+df_Apple_2016 <- unique(df_Apple_2016)
+df_Apple_2016$sentiment_score <- get_sentiment(df_Apple_2016$text)
+
+df_Apple_2018<- df_Apple_2018[!duplicated(df_Apple_2018$text), ]
+df_Apple_2018 <- unique(df_Apple_2018)
+df_Apple_2018$sentiment_score <- get_sentiment(df_Apple_2018$text)
+
+#2016
+#Model
+model_AAPL2016 <- lm(PRC ~ sentiment_score, data = df_Apple_2016)
+summary(model_AAPL2016)
+
+#Assumptions
+#L 
+plot(model_AAPL2016$residuals ~ model_AAPL2016$fitted.values)
+
+AAPL_2016<- ggplot(df_Apple_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AAPL 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AAPL2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AAPL2016)
+
+#Norm
+shapiro.test(model_AAPL2016$residuals)
+
+#2018
+#Model
+model_AAPL2018 <- lm(PRC ~ sentiment_score, data = df_Apple_2018)
+summary(model_AAPL2018)
+
+#Assumptions
+#L 
+plot(model_AAPL2018$residuals ~ model_AAPL2018$fitted.values)
+
+AAPL_2018<- ggplot(df_Apple_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AAPL 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AAPL2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AAPL2018)
+
+#Norm
+shapiro.test(model_AAPL2018$residuals)
+
+stargazer(model_AAPL2016, model_AAPL2018)
+```
+
+```{r}
+
+df_XL_2016$text <- sapply(df_XL_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_XL_2016 <- df_XL_2016[grep("\\w", df_XL_2016$text), ]
+
+df_XL_2018$text <- sapply(df_XL_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_XL_2018 <- df_XL_2018[grep("\\w", df_XL_2018$text), ]
+
+df_XL_2016<- df_XL_2016[!duplicated(df_XL_2016$text), ]
+df_XL_2016 <- unique(df_XL_2016)
+df_XL_2016$sentiment_score <- get_sentiment(df_XL_2016$text)
+
+df_XL_2018<- df_XL_2018[!duplicated(df_XL_2018$text), ]
+df_XL_2018 <- unique(df_XL_2018)
+df_XL_2018$sentiment_score <- get_sentiment(df_XL_2018$text)
+
+#2016
+#Model
+model_XL2016 <- lm(PRC ~ sentiment_score, data = df_XL_2016)
+summary(model_XL2016)
+
+#Assumptions
+#L 
+plot(model_XL2016$residuals ~ model_XL2016$fitted.values)
+
+ggplot(df_XL_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity XL 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_XL2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_XL2016)
+
+#Norm
+shapiro.test(model_XL2016$residuals)
+
+#2018
+#Model
+model_XL2018 <- lm(PRC ~ sentiment_score, data = df_XL_2018)
+summary(model_XL2018)
+
+#Assumptions
+#L 
+plot(model_XL2018$residuals ~ model_XL2018$fitted.values)
+
+ggplot(df_XL_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity XL 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_XL2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_XL2018)
+
+#Norm
+shapiro.test(model_XL2018$residuals)
+
+stargazer(model_XL2016, model_XL2018)
+```
+
+```{r}
+df_Tysonf_2016$text <- sapply(df_Tysonf_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Tysonf_2016 <- df_Tysonf_2016[grep("\\w", df_Tysonf_2016$text), ]
+
+df_Tysonf_2018$text <- sapply(df_Tysonf_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Tysonf_2018 <- df_Tysonf_2018[grep("\\w", df_Tysonf_2018$text), ]
+
+
+df_Tysonf_2016<- df_Tysonf_2016[!duplicated(df_Tysonf_2016$text), ]
+df_Tysonf_2016 <- unique(df_Tysonf_2016)
+df_Tysonf_2016$sentiment_score <- get_sentiment(df_Tysonf_2016$text)
+
+df_Tysonf_2018<- df_Tysonf_2018[!duplicated(df_Tysonf_2018$text), ]
+df_Tysonf_2018 <- unique(df_Tysonf_2018)
+df_Tysonf_2018$sentiment_score <- get_sentiment(df_Tysonf_2018$text)
+
+#2016
+#Model
+model_TSN2016 <- lm(PRC ~ sentiment_score, data = df_Tysonf_2016)
+summary(model_TSN2016)
+
+#Assumptions
+#L 
+plot(model_TSN2016$residuals ~ model_TSN2016$fitted.values)
+
+ggplot(df_Tysonf_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity TSN 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_TSN2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_TSN2016)
+
+#Norm
+shapiro.test(model_TSN2016$residuals)
+
+#2018
+#Model
+model_TSN2018 <- lm(PRC ~ sentiment_score, data = df_Tysonf_2018)
+summary(model_TSN2018)
+
+#Assumptions
+#L 
+plot(model_TSN2018$residuals ~ model_TSN2018$fitted.values)
+
+ggplot(df_Tysonf_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity TSN 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_TSN2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_TSN2018)
+
+#Norm
+shapiro.test(model_TSN2018$residuals)
+
+stargazer(model_TSN2016, model_TSN2018)
+```
+
+```{r}
+df_Akamai_2016$text <- sapply(df_Akamai_2016$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Akamai_2016 <- df_Akamai_2016[grep("\\w", df_Akamai_2016$text), ]
+
+df_Akamai_2018$text <- sapply(df_Akamai_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_Akamai_2018 <- df_Akamai_2018[grep("\\w", df_Akamai_2018$text), ]
+
+df_Akamai_2016<- df_Akamai_2016[!duplicated(df_Akamai_2016$text), ]
+df_Akamai_2016 <- unique(df_Akamai_2016)
+df_Akamai_2016$sentiment_score <- get_sentiment(df_Akamai_2016$text)
+
+df_Akamai_2018<- df_Akamai_2018[!duplicated(df_Akamai_2018$text), ]
+df_Akamai_2018 <- unique(df_Akamai_2018)
+df_Akamai_2018$sentiment_score <- get_sentiment(df_Akamai_2018$text)
+
+#2016
+#Model
+model_AKAM2016 <- lm(PRC ~ sentiment_score, data = df_Akamai_2016)
+summary(model_AKAM2016)
+
+#Assumptions
+#L 
+plot(model_AKAM2016$residuals ~ model_AKAM2016$fitted.values)
+
+ggplot(df_Akamai_2016, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AKAM 2016", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AKAM2016)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AKAM2016)
+
+#Norm
+shapiro.test(model_AKAM2016$residuals)
+
+#2018
+#Model
+model_AKAM2018 <- lm(PRC ~ sentiment_score, data = df_Akamai_2018)
+summary(model_AKAM2018)
+
+#Assumptions
+#L 
+plot(model_AKAM2018$residuals ~ model_AKAM2018$fitted.values)
+
+ggplot(df_Akamai_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AKAM 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AKAM2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AKAM2018)
+
+#Norm
+shapiro.test(model_AKAM2018$residuals)
+
+stargazer(model_AKAM2016, model_AKAM2018)
+
+```
+
+```{r}
+df_GOOGL_2015$text <- sapply(df_GOOGL_2015$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GOOGL_2015<- df_GOOGL_2015[grep("\\w", df_GOOGL_2015$text), ]
+
+df_GOOGL_2018$text <- sapply(df_GOOGL_2018$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GOOGL_2018 <- df_GOOGL_2018[grep("\\w", df_GOOGL_2018$text), ]
+
+df_GOOGL_2015<- df_GOOGL_2015[!duplicated(df_GOOGL_2015$text), ]
+df_GOOGL_2015 <- unique(df_GOOGL_2015)
+df_GOOGL_2015$sentiment_score <- get_sentiment(df_GOOGL_2015$text)
+
+df_GOOGL_2018<- df_GOOGL_2018[!duplicated(df_GOOGL_2018$text), ]
+df_GOOGL_2018 <- unique(df_GOOGL_2018)
+df_GOOGL_2018$sentiment_score <- get_sentiment(df_GOOGL_2018$text)
+
+#2015
+#Model
+model_GOOGL2015 <- lm(PRC ~ sentiment_score, data = df_GOOGL_2015)
+summary(model_GOOGL2015)
+
+#Assumptions
+#L 
+plot(model_GOOGL2015$residuals ~ model_GOOGL2015$fitted.values)
+```
+
+```{r}
+GOOGL_2015PL<- ggplot(df_GOOGL_2015, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GOOGL 2015", x="Sentiment Score", y="prc") +
+  theme_minimal()
+```
+
+```{r}
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GOOGL2015)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GOOGL2015)
+
+#Norm
+shapiro.test(model_GOOGL2015$residuals)
+
+#Model
+model_GOOGL2018 <- lm(PRC ~ sentiment_score, data = df_GOOGL_2018)
+summary(model_GOOGL2018)
+
+#Assumptions
+#L 
+plot(model_GOOGL2018$residuals ~ model_GOOGL2018$fitted.values)
+
+GOOGL_PL_2018<- ggplot(df_GOOGL_2018, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GOOGL 2018", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GOOGL2018)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GOOGL2018)
+
+#Norm
+shapiro.test(model_GOOGL2018$residuals)
+
+stargazer(model_GOOGL2015, model_GOOGL2018)
+```
+
+##Covid datasets
+
+```{r}
+df_AAPL_covid$text <- sapply(df_AAPL_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AAPL_covid <- df_AAPL_covid[grep("\\w", df_AAPL_covid$text), ]
+
+df_AAPL_covid<- df_AAPL_covid[!duplicated(df_AAPL_covid$text), ]
+df_AAPL_covid <- unique(df_AAPL_covid)
+df_AAPL_covid$sentiment_score <- get_sentiment(df_AAPL_covid$text)
+
+
+#Model
+model_AAPL_covid <- lm(PRC ~ sentiment_score, data = df_AAPL_covid)
+summary(model_AAPL_covid)
+
+#Assumptions
+#L 
+plot(model_AAPL_covid$residuals ~ model_AAPL_covid$fitted.values)
+
+Covid_Apple <- ggplot(df_AAPL_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AAPL pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AAPL_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AAPL_covid)
+
+#Norm
+shapiro.test(model_AAPL_covid$residuals)
+
+stargazer(model_AAPL_covid)
+
+
+```
+
+```{r}
+df_AGN_covid$text <- sapply(df_AGN_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AGN_covid <- df_AGN_covid[grep("\\w", df_AGN_covid$text), ]
+
+df_AGN_covid<- df_AGN_covid[!duplicated(df_AGN_covid$text), ]
+df_AGN_covid <- unique(df_AGN_covid)
+df_AGN_covid$sentiment_score <- get_sentiment(df_AGN_covid$text)
+
+
+#Model
+model_AGN_covid <- lm(PRC ~ sentiment_score, data = df_AGN_covid)
+summary(model_AGN_covid)
+
+#Assumptions
+#L 
+plot(model_AGN_covid$residuals ~ model_AGN_covid$fitted.values)
+
+covid_AGN <- ggplot(df_AGN_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AGN pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AGN_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AGN_covid)
+
+#Norm
+shapiro.test(model_AGN_covid$residuals)
+
+stargazer(model_AGN_covid)
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+```{r}
+df_AMZN_covid$text <- sapply(df_AMZN_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_AMZN_covid <- df_AMZN_covid[grep("\\w", df_AMZN_covid$text), ]
+
+df_AMZN_covid<- df_AMZN_covid[!duplicated(df_AMZN_covid$text), ]
+df_AMZN_covid <- unique(df_AMZN_covid)
+df_AMZN_covid$sentiment_score <- get_sentiment(df_AMZN_covid$text)
+
+
+#Model
+model_AMZN_covid <- lm(PRC ~ sentiment_score, data = df_AMZN_covid)
+summary(model_AMZN_covid)
+
+#Assumptions
+#L 
+plot(model_AMZN_covid$residuals ~ model_AMZN_covid$fitted.values)
+
+covid_AMZN <- ggplot(df_AMZN_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity AMZN pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_AMZN_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_AMZN_covid)
+
+#Norm
+shapiro.test(model_AMZN_covid$residuals)
+
+stargazer(model_AMZN_covid)
+```
+
+```{r}
+
+
+df_DIS_covid$text <- sapply(df_DIS_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_DIS_covid <- df_DIS_covid[grep("\\w", df_DIS_covid$text), ]
+
+df_DIS_covid<- df_DIS_covid[!duplicated(df_DIS_covid$text), ]
+df_DIS_covid <- unique(df_DIS_covid)
+df_DIS_covid$sentiment_score <- get_sentiment(df_DIS_covid$text)
+
+
+#Model
+model_DIS_covid <- lm(PRC ~ sentiment_score, data = df_DIS_covid)
+summary(model_DIS_covid)
+
+#Assumptions
+#L 
+plot(model_DIS_covid$residuals ~ model_DIS_covid$fitted.values)
+
+covid_DIS<- ggplot(df_DIS_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity DIS pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_DIS_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_DIS_covid)
+
+#Norm
+shapiro.test(model_DIS_covid$residuals)
+
+stargazer(model_DIS_covid)
+```
+
+```{r}
+df_GOOGL_covid<- df_GOOGL_covid[!duplicated(df_GOOGL_covid$text), ]
+df_GOOGL_covid <- unique(df_GOOGL_covid)
+df_GOOGL_covid$sentiment_score <- get_sentiment(df_GOOGL_covid$text)
+
+
+
+df_GOOGL_covid$text <- sapply(df_GOOGL_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_GOOGL_covid <- df_GOOGL_covid[grep("\\w", df_GOOGL_covid$text), ]
+
+#Model
+model_GOOGL_covid <- lm(PRC ~ sentiment_score, data = df_GOOGL_covid)
+summary(model_GOOGL_covid)
+
+#Assumptions
+#L 
+plot(model_GOOGL_covid$residuals ~ model_GOOGL_covid$fitted.values)
+
+covid_GOOGL<- ggplot(df_GOOGL_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity GOOGL pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_GOOGL_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_GOOGL_covid)
+
+#Norm
+shapiro.test(model_GOOGL_covid$residuals)
+
+stargazer(model_GOOGL_covid)
+```
+
+```{r}
+df_MDT_covid<- df_MDT_covid[!duplicated(df_MDT_covid$text), ]
+df_MDT_covid <- unique(df_MDT_covid)
+df_MDT_covid$sentiment_score <- get_sentiment(df_MDT_covid$text)
+
+df_MDT_covid$text <- sapply(df_MDT_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_MDT_covid <- df_MDT_covid[grep("\\w", df_MDT_covid$text), ]
+
+
+#Model
+model_MDT_covid <- lm(PRC ~ sentiment_score, data = df_MDT_covid)
+summary(model_MDT_covid)
+
+#Assumptions
+#L 
+plot(model_MDT_covid$residuals ~ model_MDT_covid$fitted.values)
+
+covid_MDT<- ggplot(df_MDT_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MDT pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MDT_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MDT_covid)
+
+#Norm
+shapiro.test(model_MDT_covid$residuals)
+
+stargazer(model_MDT_covid)
+```
+
+```{r}
+df_MSFT_covid<- df_MSFT_covid[!duplicated(df_MSFT_covid$text), ]
+df_MSFT_covid <- unique(df_MSFT_covid)
+df_MSFT_covid$sentiment_score <- get_sentiment(df_MSFT_covid$text)
+
+df_MSFT_covid$text <- sapply(df_MSFT_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_MSFT_covid <- df_MSFT_covid[grep("\\w", df_MSFT_covid$text), ]
+
+
+#Model
+model_MSFT_covid <- lm(PRC ~ sentiment_score, data = df_MSFT_covid)
+summary(model_MSFT_covid)
+
+#Assumptions
+#L 
+plot(model_MSFT_covid$residuals ~ model_MSFT_covid$fitted.values)
+
+covid_MSFT<- ggplot(df_MSFT_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity MSFT pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_MSFT_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_MSFT_covid)
+
+#Norm
+shapiro.test(model_MSFT_covid$residuals)
+
+stargazer(model_MSFT_covid)
+
+
+```
+
+```{r}
+df_RHT_covid<- df_RHT_covid[!duplicated(df_RHT_covid$text), ]
+df_RHT_covid <- unique(df_RHT_covid)
+df_RHT_covid$sentiment_score <- get_sentiment(df_RHT_covid$text)
+
+df_RHT_covid$text <- sapply(df_RHT_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_RHT_covid <- df_RHT_covid[grep("\\w", df_RHT_covid$text), ]
+
+
+#Model
+model_RHT_covid <- lm(PRC ~ sentiment_score, data = df_RHT_covid)
+summary(model_RHT_covid)
+
+#Assumptions
+#L 
+plot(model_RHT_covid$residuals ~ model_RHT_covid$fitted.values)
+
+covid_RHT<- ggplot(df_RHT_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RHT pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RHT_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RHT_covid)
+
+#Norm
+shapiro.test(model_RHT_covid$residuals)
+
+stargazer(model_RHT_covid)
+
+stargazer(model_AAPL2016, type = "text")
+```
+
+```{r}
+df_RMD_covid<- df_RMD_covid[!duplicated(df_RMD_covid$text), ]
+df_RMD_covid <- unique(df_RMD_covid)
+df_RMD_covid$sentiment_score <- get_sentiment(df_RMD_covid$text)
+
+df_RMD_covid$text <- sapply(df_RMD_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_RMD_covid <- df_RMD_covid[grep("\\w", df_RMD_covid$text), ]
+
+
+#Model
+model_RMD_covid <- lm(PRC ~ sentiment_score, data = df_RMD_covid)
+summary(model_RMD_covid)
+
+#Assumptions
+#L 
+plot(model_RMD_covid$residuals ~ model_RMD_covid$fitted.values)
+
+covid_RMD <- ggplot(df_RMD_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity RMD pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_RMD_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_RMD_covid)
+
+#Norm
+shapiro.test(model_RMD_covid$residuals)
+
+stargazer(model_RMD_covid)
+```
+
+```{r}
+df_WU_covid<- df_WU_covid[!duplicated(df_WU_covid$text), ]
+df_WU_covid <- unique(df_WU_covid)
+df_WU_covid$sentiment_score <- get_sentiment(df_WU_covid$text)
+
+df_WU_covid$text <- sapply(df_WU_covid$text, function(row) gsub("[^\x01-\x7F]", "", row))
+df_WU_covid <- df_WU_covid[grep("\\w", df_WU_covid$text), ]
+
+
+#Model
+model_WU_covid <- lm(PRC ~ sentiment_score, data = df_WU_covid)
+summary(model_WU_covid)
+
+#Assumptions
+#L 
+plot(model_WU_covid$residuals ~ model_WU_covid$fitted.values)
+
+covid_WU<- ggplot(df_WU_covid, aes(x=sentiment_score, y=PRC)) +
+  geom_point(aes(color=sentiment_score)) +              
+  geom_smooth(method="lm", se=FALSE, color="red") +      
+  labs(title="Linearity WU pandemic", x="Sentiment Score", y="prc") +
+  theme_minimal()
+#I
+install.packages("car")
+library(car)
+durbinWatsonTest(model_WU_covid)
+
+#H
+installed.packages("lmtest")
+library(lmtest)
+bptest(model_WU_covid)
+
+#Norm
+shapiro.test(model_WU_covid$residuals)
+
+stargazer(model_WU_covid)
+```
+
+```{r}
+
+library("stargazer")
+```
+
+```{r}
+stargazer(model_AAPL_covid, model_AGN_covid, model_AMZN_covid, model_DIS_covid, model_GOOGL_covid, model_MDT_covid, model_MSFT_covid, model_RHT_covid, model_RMD_covid, model_WU_covid, type = "text")
+
+summary(model_WU_covid)
+
+stargazer(model_AAPL_covid)
+```
+
+```{r}
+stargazer(model_AGN_covid,type = 'latex')
+```
+
+```{r}
+stargazer(model_AAPL2016, model_AAPL2018)
+```
+
+```{r}
+#Comparison
+install.packages("gridExtra")
+library(gridExtra)
+```
+
+```{r}
+library(ggplot2)
+grid.arrange(covid_AGN,covid_AMZN,covid_DIS,covid_GOOGL,covid_MDT,covid_MSFT,covid_RHT,covid_RMD,covid_WU,Covid_Apple,ncol=1)
+```
+
+```{r}
+#Descriptive
+JCI_averages_2016 <- colMeans(df_Johnson_2016[, c("PRC", "VOL", "BID", "ASK", "OPENPRC")], na.rm = TRUE)
+JCI_averages_2017 <- colMeans(df_Johnson_2017[, c("PRC", "VOL", "BID", "ASK", "OPENPRC")], na.rm = TRUE)
+```
+
+```{r}
+GOOGL_AVG2016<- colMeans(df_GOOGL_2015[, c("PRC", "VOL", "BID", "ASK", "OPENPRC")], na.rm = TRUE)
+```
+
+```{r}
+WU_AVG<- colMeans(df_WU_covid[, c("PRC", "VOL", "BID", "ASK", "OPENPRC")], na.rm = TRUE)
+
+stargazer(WU_AVG, type = "text")
+```
+
+```{r}
+```
+
+```{r}
+```
